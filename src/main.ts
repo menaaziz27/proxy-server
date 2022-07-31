@@ -9,8 +9,8 @@ async function bootstrap() {
   });
 
   app.set('trust proxy', 1);
+
   app.useStaticAssets(join(__dirname, '..', 'public'));
-  app.setViewEngine('html');
 
   await app.listen(3000);
 }

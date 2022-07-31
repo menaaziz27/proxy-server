@@ -1,37 +1,28 @@
-import {
-  Controller,
-  Get,
-  Param,
-  Query,
-  Render,
-  Req,
-  Res,
-} from '@nestjs/common';
-import configurations from 'condfig/configurations';
-import { URLSearchParams } from 'url';
-import { AppService } from './app.service';
-import url from 'url';
+import { Controller, Get, Query, Render, Res } from '@nestjs/common';
+import configurations from 'config/configurations';
 import axios from 'axios';
 import { encodeQueryData } from './helpers/encodeQueryData';
 
 @Controller()
 export class AppController {
-  constructor(private readonly appService: AppService) {}
-
   @Get()
   @Render('index')
-  root() {}
+  root() {
+    return;
+  }
 
   @Get('/api')
   async getWeather(@Query() query, @Res() res) {
     try {
       const { api } = configurations();
 
-      const queryString = encodeQueryData(query);
+      const api_credentials = {};
 
-      const apiResponse = await axios.get(
-        `${api.baseName}?${queryString}&${api.key}=${api.value}`,
-      );
+      api_credentials[api.key] = api.value;
+
+      const queryString = encodeQueryData({ ...query, ...api_credentials });
+
+      const apiResponse = await axios.get(`${api.baseName}?${queryString}`);
 
       const data = apiResponse.data;
 
@@ -39,10 +30,5 @@ export class AppController {
     } catch (error) {
       res.status(500).json({ error });
     }
-  }
-
-  @Get('/')
-  getHello(): string {
-    return this.appService.getHello();
   }
 }
